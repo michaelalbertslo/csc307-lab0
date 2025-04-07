@@ -18,6 +18,7 @@ function TableHeader() {
         <tr key={index}>
             <td>{row.name}</td>
             <td>{row.job}</td>
+            <td>{index + 1}</td>
             <td>
                 <button onClick={() => props.removeCharacter(index)}>
                     Delete
