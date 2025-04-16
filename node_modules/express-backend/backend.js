@@ -24,7 +24,7 @@ const users = {
     {
       id: "yat999",
       name: "Dee",
-      job: "Aspring actress"
+      job: "Aspiring actress"
     },
     {
       id: "zap555",
@@ -35,13 +35,20 @@ const users = {
 };
 
 const findUserByName = (name) => {
-  return users["users_list"].filter(
-    (user) => user["name"] === name
+  return users.users_list.filter(user =>
+    user.name.toLowerCase() === name.toLowerCase()
+  );
+};
+
+const findUserByJob = (job) => {
+  return users.users_list.filter(user =>
+    user.job.toLowerCase() === job.toLowerCase()
   );
 };
 
 const findUserByNameAndJob = (name, job) => {
-  return users.users_list.filter(user => user.name === name && user.job === job);
+  return users.users_list.filter(user => user.name.toLowerCase() === name.toLowerCase() 
+    && user.job.toLowerCase() === job.toLowerCase());
 };
 
 const findUserById = (id) =>
@@ -63,25 +70,39 @@ const deleteUserById = (id) => {
 
 app.use(express.json());
 
-app.get("/users", (req, res) => {
-  const name = req.query.name;
-  if (name != undefined) {
-    let result = findUserByName(name);
-    result = { users_list: result };
-    res.send(result);
-  } else {
-    res.send(users);
-  }
-});
 
 app.get("/users/:id", (req, res) => {
-  const id = req.params["id"]; //or req.params.id
+  const id = req.params["id"]; 
   let result = findUserById(id);
   if (result === undefined) {
     res.status(404).send("Resource not found.");
   } else {
     res.send(result);
   }
+});
+
+
+//handle all queries in one
+app.get("/users", (req, res) => {
+  const name = req.query.name;
+  const job = req.query.job;
+
+  if (name && job) {
+    const result = { users_list: findUserByNameAndJob(name, job) };
+    return res.send(result);
+  }
+  
+  if (name) {
+    const result = { users_list: findUserByName(name) };
+    return res.send(result);
+  }
+
+  if (job) {
+    const result = { users_list: findUserByJob(job) };
+    return res.send(result);
+  }
+  
+  res.send(users);
 });
 
 app.listen(port, () => {
