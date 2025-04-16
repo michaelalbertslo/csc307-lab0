@@ -40,12 +40,25 @@ const findUserByName = (name) => {
   );
 };
 
+const findUserByNameAndJob = (name, job) => {
+  return users.users_list.filter(user => user.name === name && user.job === job);
+};
+
 const findUserById = (id) =>
   users["users_list"].find((user) => user["id"] === id);
 
 const addUser = (user) => {
   users["users_list"].push(user);
   return user;
+};
+
+const deleteUserById = (id) => {
+  const index = users.users_list.findIndex(user => user.id === id);
+  if (index !== -1) {
+    const deleted = users.users_list.splice(index, 1);
+    return deleted[0];
+  }
+  return null;
 };
 
 app.use(express.json());
@@ -83,3 +96,12 @@ app.post("/users", (req, res) => {
   res.send();
 });
 
+app.delete("/users/:id", (req, res) => {
+  const id = req.params.id;
+  const deletedUser = deleteUserById(id);
+  if (deletedUser) {
+    res.send(deletedUser);
+  } else {
+    res.status(404).send("User not found");
+  }
+});
