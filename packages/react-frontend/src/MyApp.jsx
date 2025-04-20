@@ -52,10 +52,22 @@ function MyApp() {
       
 
       function removeOneCharacter(index) {
-        const updated = characters.filter((character, i) => {
-          return i !== index;
-        });
-        setCharacters(updated);
+        const userToDelete = characters[index];
+        const id = userToDelete.id;
+        fetch(`http://localhost:8000/users/${id}`, {
+          method: "DELETE",
+        })
+        .then((res) => {
+          if (res.status === 204) {
+            const updated = characters.filter((_, i) => i !== index);
+            setCharacters(updated);
+          } else if (res.status === 404) {
+            console.error("User not found on the server.");
+          } else {
+            console.error("Unexpected delete error:", res.status);
+          }
+        })
+        .catch((err) => console.error("Delete failed:", err));
       }
 
     return (
