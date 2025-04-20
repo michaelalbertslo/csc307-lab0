@@ -69,6 +69,10 @@ const deleteUserById = (id) => {
   return null;
 };
 
+const generateId = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString(); //random 6 digit
+}
+
 app.use(cors());
 app.use(express.json());
 
@@ -115,9 +119,16 @@ app.listen(port, () => {
 
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
-  addUser(userToAdd);
-  res.send();
+
+  if (userToAdd) {
+    const newUser = {id: generateId(), ...userToAdd}
+    addUser(newUser);
+    res.status(201).json(newUser);
+  } else {
+    res.status(400).json({ error: "Invalid user post" });
+  }
 });
+
 
 app.delete("/users/:id", (req, res) => {
   const id = req.params.id;

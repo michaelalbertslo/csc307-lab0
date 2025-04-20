@@ -23,24 +23,33 @@ function MyApp() {
       }, []);
 
       function postUser(person) {
-        const promise = fetch("Http://localhost:8000/users", {
+        return fetch("http://localhost:8000/users", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(person)
-        });
-      
-        return promise;
+          body: JSON.stringify(person),
+        })
+          .then((res) => {
+            if (res.status === 201) {
+              return res.json(); 
+            } else {
+              throw new Error("User was not created");
+            }
+          });
       }
+      
 
       function updateList(person) {
         postUser(person)
-          .then(() => setCharacters([...characters, person]))
+          .then((newUser) => {
+            setCharacters((prev) => [...prev, newUser]);
+          })
           .catch((error) => {
-            console.log(error);
+            console.error("Error adding user:", error);
           });
       }
+      
 
       function removeOneCharacter(index) {
         const updated = characters.filter((character, i) => {
