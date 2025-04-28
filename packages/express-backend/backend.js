@@ -2,6 +2,8 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import userService from "./services/user-service.js"
 
@@ -9,12 +11,13 @@ const {
   addUser, 
   getUsers, 
   findUserById, 
-  findUserByName, 
-  findUserByJob,
   deleteUserById     
 } = userService;
 
-dotenv.config();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.join(__dirname, "mongo.env") });
+// console.log("▶︎ connecting to:", process.env.MONGO_CONNECTION_STRING);
+
 
 const { MONGO_CONNECTION_STRING } = process.env;
 
@@ -86,32 +89,14 @@ app.get("/users/:id", (req, res) => {
 
 //get by name or job query
 app.get("/users", (req, res) => {
-  const {name, job} = req.query;
-  let queryPromise;
-
-  if (name && job) {
-    queryPromise = getUsers(name, job); 
-  }
-  
-  if (name) {
-    queryPromise = findUserByName(name);
-  }
-
-  if (job) {
-    queryPromise = findUserByJob(job);
-  } else {
-    queryPromise = getUsers();
-  }
-  
-  queryPromise.then(
-    usersList => {
+  getUsers(req.query.name, req.query.job)
+    .then(usersList => {
       res.json({ users_list: usersList });
-    }
-  )
-  .catch(err => {
-    console.error(err);
-    res.status(500).json({ error: "Server error" });
-  });
+    })
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ error: "Server error" });
+    });
 });
 
 app.listen(port, () => {
